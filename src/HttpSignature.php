@@ -303,6 +303,8 @@ class HttpSignature
         }
 
         $requestHeaders = array_keys($request->getHeaders());
+        $requestHeaders = array_map('strtolower', $requestHeaders);
+        $requestHeaders[] = '(request-target)';
         $required = array_intersect($this->getRequiredHeaders($method), $requestHeaders);
 
         $missing = array_diff($required, $headers);
