@@ -1,5 +1,5 @@
 {
-    "name": "jasny/http-signature",
+    "name": "blackwolf-cz/http-signature",
     "description": "Implementation of the IETF HTTP Signatures draft RFC",
     "license": "MIT",
     "type": "library",
@@ -8,11 +8,15 @@
             "name": "Arnold Daniels",
             "email": "arnold@jasny.net",
             "homepage": "https://www.jasny.net"
+        },
+        {
+            "name": "Michal Kandr",
+            "homepage": "https://www.michalkandr.cz"
         }
     ],
     "support": {
-        "issues": "https://github.com/jasny/http-signature/issues",
-        "source": "https://github.com/jasny/http-signature"
+        "issues": "https://github.com/blackwolf-cz/http-signature/issues",
+        "source": "https://github.com/blackwolf-cz/http-signature"
     },
     "require": {
         "php": ">=7.2.0",
