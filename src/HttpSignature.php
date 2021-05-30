@@ -393,16 +393,21 @@ class HttpSignature
         $dateString =
             ($request->hasHeader('x-date') ? $request->getHeaderLine('x-date') : null) ??
             ($request->hasHeader('date') ? $request->getHeaderLine('date') : null);
-
-        if ($dateString === null) {
-            return; // Normally 'Date' should be a required header, so we shouldn't event get to this point.
+    
+        if ($dateString !== null) {
+            $date = CarbonImmutable::instance(new \DateTime($dateString));
+            if (abs(CarbonImmutable::now()->diffInSeconds($date)) > $this->clockSkew) {
+                throw new HttpSignatureException("signature too old or system clocks out of sync (date header)");
+            }
         }
 
-        $date = CarbonImmutable::instance(new \DateTime($dateString));
-
-        if (abs(CarbonImmutable::now()->diffInSeconds($date)) > $this->clockSkew) {
-            throw new HttpSignatureException("signature to old or system clocks out of sync");
-        }
+        $dateString2 = ($request->hasHeader('original-date') ? $request->getHeaderLine('original-date') : null);
+        if ($dateString2 !== null) {
+            $date2 = CarbonImmutable::instance(new \DateTime($dateString2));
+            if (abs(CarbonImmutable::now()->diffInSeconds($date2)) > $this->clockSkew) {
+                throw new HttpSignatureException("signature too old or system clocks out of sync (original-date header)");
+            }
+        } 
     }
 
     /**
