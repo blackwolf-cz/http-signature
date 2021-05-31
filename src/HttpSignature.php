@@ -395,6 +395,8 @@ class HttpSignature
             ($request->hasHeader('date') ? $request->getHeaderLine('date') : null);
     
         if ($dateString !== null) {
+            $dateString = str_replace('CEST', '+0200', $dateString);
+            
             $date = CarbonImmutable::instance(new \DateTime($dateString));
             if (abs(CarbonImmutable::now()->diffInSeconds($date)) > $this->clockSkew) {
                 throw new HttpSignatureException("signature too old or system clocks out of sync (date header)");
@@ -403,6 +405,8 @@ class HttpSignature
 
         $dateString2 = ($request->hasHeader('original-date') ? $request->getHeaderLine('original-date') : null);
         if ($dateString2 !== null) {
+            $dateString2 = str_replace('CEST', '+0200', $dateString2);
+            
             $date2 = CarbonImmutable::instance(new \DateTime($dateString2));
             if (abs(CarbonImmutable::now()->diffInSeconds($date2)) > $this->clockSkew) {
                 throw new HttpSignatureException("signature too old or system clocks out of sync (original-date header)");
