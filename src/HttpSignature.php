@@ -173,16 +173,17 @@ class HttpSignature
      *
      * @param Request $request
      * @return string `keyId` parameter
+     * @param bool $allRequiredHeadersNecessary require all required headers even if they are not present in the request
      * @throws HttpSignatureException
      */
-    public function verify(Request $request): string
+    public function verify(Request $request, bool $allRequiredHeadersNecessary = false): string
     {
         $params = $this->getParams($request);
         $this->assertParams($params);
 
         $method = $request->getMethod();
         $headers = isset($params['headers']) ? explode(' ', $params['headers']) : [];
-        $this->assertRequiredHeaders($request, $method, $headers);
+        $this->assertRequiredHeaders($request, $method, $headers, $allRequiredHeadersNecessary);
 
         $this->assertSignatureAge($request);
 
@@ -290,12 +291,12 @@ class HttpSignature
     /**
      * Assert that required headers are present
      *
-     * @param Request  $request
-     * @param string   $method
+     * @param Request $request
+     * @param string $method
      * @param string[] $headers
-     * @throws HttpSignatureException
+     * @param bool $allRequiredHeadersNecessary require all required headers even if they are not present in the request
      */
-    protected function assertRequiredHeaders(Request $request, string $method, array $headers): void
+    protected function assertRequiredHeaders(Request $request, string $method, array $headers, bool $allRequiredHeadersNecessary = false): void
     {
         if (in_array('x-date', $headers, true)) {
             $key = array_search('x-date', $headers, true);
@@ -305,7 +306,11 @@ class HttpSignature
         $requestHeaders = array_keys($request->getHeaders());
         $requestHeaders = array_map('strtolower', $requestHeaders);
         $requestHeaders[] = '(request-target)';
-        $required = array_intersect($this->getRequiredHeaders($method), $requestHeaders);
+        if ($allRequiredHeadersNecessary) {
+            $required = $this->getRequiredHeaders($method);
+        } else {
+            $required = array_intersect($this->getRequiredHeaders($method), $requestHeaders);
+        }
 
         $missing = array_diff($required, $headers);
 
